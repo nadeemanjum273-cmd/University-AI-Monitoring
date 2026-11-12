@@ -1,0 +1,59 @@
+# Render Blueprint for AI Campus Surveillance SaaS (Python Backend & AI Worker)
+# Specification Reference: https://render.com/docs/blueprint-spec
+
+services:
+  # 1. FastAPI Web API Service
+  - type: web
+    name: campus-surveillance-api
+    runtime: python
+    region: oregon
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: WORKER_ID
+        value: render-api-web
+      - key: RAW_BUCKET
+        value: raw_videos
+      - key: PROCESSED_BUCKET
+        value: processed_results
+      - key: TEMP_DIR
+        value: ./temp
+
+  # 2. Remote Background AI Processor Worker
+  - type: worker
+    name: campus-surveillance-worker
+    runtime: python
+    region: oregon
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.workers.processor
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: WORKER_ID
+        value: render-ai-worker-01
+      - key: POLL_INTERVAL_SECONDS
+        value: "5"
+      - key: RAW_BUCKET
+        value: raw_videos
+      - key: PROCESSED_BUCKET
+        value: processed_results
+      - key: TEMP_DIR
+        value: ./temp
+
