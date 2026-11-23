@@ -182,12 +182,12 @@ def annotate_gate_01():
             cv2.rectangle(annotated, (vx1, vy1), (vx2, vy2), (0, 215, 255), 3)
 
             # ANPR plate label
-            lbl = "CAR #1 | ICT-2041 | IN | CLEARED"
+            lbl = "CAR #1 | TS07JS9670 | IN | CLEARED"
             (tw, th), _ = cv2.getTextSize(lbl, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
             cv2.rectangle(annotated, (vx1, max(0, vy1 - 22)), (vx1 + tw + 10, vy1), (0, 215, 255), -1)
             cv2.putText(annotated, lbl, (vx1 + 5, vy1 - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 0, 0), 1, cv2.LINE_AA)
 
-        if frame_idx == 180 or (best_snapshot is None and cached_veh_box is not None):
+        if frame_idx == 270 or (cached_veh_box is not None and best_snapshot is None):
             best_snapshot = annotated.copy()
 
         out.write(annotated)
@@ -265,7 +265,7 @@ def annotate_exam_01():
         {"id": 12, "anchor": (568, 240), "radius": 22},  # Center row 3 (white shirt)
         {"id": 13, "anchor": (769, 290), "radius": 23},  # Right row 3 left seat
         {"id": 14, "anchor": (934, 280), "radius": 22},  # Right row 3 right seat
-        {"id": 15, "anchor": (208, 330), "radius": 23},  # Left row 3 (blue dress - centered on HEAD)
+        {"id": 15, "anchor": (238, 328), "radius": 22},  # Left row 3 (blue dress - shifted right onto head)
 
         # Row 2 (y ~ 350 - 430)
         {"id": 16, "anchor": (562, 355), "radius": 25},  # Center row 2 (dark saree with glasses)

@@ -116,7 +116,7 @@ export default function ClientDemoDashboard() {
       ['Zone / Facility', 'Location', 'Students / Candidates', 'Staff / Supervision', 'Parking & Clearance Status'],
       ['Primary Classroom', 'Class 3rd B', 15, 'Teacher: Active Teaching', 'Verified'],
       ['Examination Hall', 'Exam Center 01', 24, 'Invigilator: Active Patrol Duty', '2 Suspicious Activity Flags (Black Rectangles: Candidate #19, Candidate #17)'],
-      ['Main Gate Entry', 'Gate 01 Barrier', 1, 'Gate Cleared (Plate: ICT-2041 - IN)', 'Parking Occupancy: 1 out of 50 (2%) - 49 Bays Available'],
+      ['Main Gate Entry', 'Gate 01 Barrier', 1, 'Gate Cleared (Plate: TS07JS9670 - IN)', 'Parking Occupancy: 1 out of 50 (2%) - 49 Bays Available'],
     ];
     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
     XLSX.utils.book_append_sheet(wb, wsOverview, 'Executive Overview');
@@ -174,7 +174,7 @@ export default function ClientDemoDashboard() {
       ['Available Parking Bays', '49 Bays Free', '49 out of 50 (98%)'],
       [],
       ['Entry #', 'Time', 'Vehicle Type', 'Number Plate', 'Direction', 'Barrier Clearance'],
-      [1, '11:56:10 AM', 'Car', 'ICT-2041', 'IN', 'Barrier Cleared'],
+      [1, '11:56:10 AM', 'Car', 'TS07JS9670', 'IN', 'Barrier Cleared'],
     ];
     const wsGate = XLSX.utils.aoa_to_sheet(gateData);
     XLSX.utils.book_append_sheet(wb, wsGate, 'Gate Vehicle Ingress Log');
@@ -236,7 +236,7 @@ export default function ClientDemoDashboard() {
         ['Available Parking Bays', '49 Bays', '49 out of 50 (98%)'],
         [],
         ['Entry #', 'Time', 'Vehicle Type', 'Number Plate', 'Direction', 'Barrier Clearance'],
-        [1, '11:56:10 AM', 'Car', 'ICT-2041', 'IN', 'Barrier Cleared'],
+        [1, '11:56:10 AM', 'Car', 'TS07JS9670', 'IN', 'Barrier Cleared'],
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(gateData), 'Gate Ingress Log');
       XLSX.writeFile(wb, 'Gate_Barrier_Vehicle_Log.xlsx');
@@ -349,7 +349,7 @@ export default function ClientDemoDashboard() {
                         Vehicle Gate Ingress Log (.xlsx)
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        Barrier crossing: Time, Car, Plate ICT-2041, IN
+                        Barrier crossing: Time, Car, Plate TS07JS9670, IN
                       </div>
                     </div>
                   </button>
@@ -686,7 +686,7 @@ export default function ClientDemoDashboard() {
                         'Parking Capacity',
                         '1 out of 50 (2%)',
                         'Gate Clearance',
-                        'Plate ICT-2041 (IN) - Cleared',
+                        'Plate TS07JS9670 (IN) - Cleared',
                         'Near barrier line detection only; parking occupancy 1/50 (2%).'
                       )
                     }
@@ -746,7 +746,7 @@ export default function ClientDemoDashboard() {
                       />
                     </div>
                     <div className="flex justify-between items-center text-[11px] text-slate-400 pt-0.5">
-                      <span className="text-rose-600 font-medium">1 Bay In Use (ICT-2041)</span>
+                      <span className="text-rose-600 font-medium">1 Bay In Use (TS07JS9670)</span>
                       <span className="text-emerald-600 font-semibold">49 Free Bays (98%)</span>
                     </div>
                   </div>
@@ -758,7 +758,7 @@ export default function ClientDemoDashboard() {
                     </div>
                     <div>
                       <p className="text-xs text-slate-500 font-medium">Gate Barrier Clearance</p>
-                      <p className="font-bold text-slate-900 text-base">Plate ICT-2041 (IN)</p>
+                      <p className="font-bold text-slate-900 text-base">Plate TS07JS9670 (IN)</p>
                     </div>
                   </div>
                 </div>
