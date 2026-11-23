@@ -14,7 +14,10 @@ import {
   Loader2,
   Film,
   HardDrive,
-  ShieldAlert,
+  ShieldCheck,
+  GraduationCap,
+  Car,
+  Sparkles,
 } from "lucide-react";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
@@ -29,6 +32,7 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [videoType, setVideoType] = useState<"auto" | "classroom" | "vehicle">("auto");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
@@ -59,8 +63,8 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
-
     setSelectedFile(file);
+    setUploadProgress(0);
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -75,171 +79,197 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleFileSelect(e.dataTransfer.files[0]);
-      }
-    },
-    [handleFileSelect]
-  );
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  }, []);
 
-  const performDirectCloudUpload = async () => {
-    if (!selectedFile) return;
+  /**
+   * Direct-to-Cloud Upload Pipeline
+   * Uploads file directly to Supabase Storage 'raw_videos' bucket with XHR progress.
+   */
+  const handleUpload = async () => {
+    if (!selectedFile || !institutionId) return;
 
     setIsUploading(true);
     setUploadProgress(0);
 
     const supabase = createClient();
-    const cleanFileName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const timestamp = Date.now();
-    const storagePath = `${institutionId}/${timestamp}-${cleanFileName}`;
 
     try {
-      // 1. Fetch current session auth token for direct storage upload
+      // 1. Generate unique storage path
+      const sanitizedName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const storagePath = `${institutionId}/${Date.now()}_${sanitizedName}`;
+
+      // 2. Get Supabase session token
       const {
         data: { session },
+        error: sessionError,
       } = await supabase.auth.getSession();
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-      const authToken = session?.access_token || supabaseAnonKey;
+      if (sessionError || !session) {
+        throw new Error("Authentication session expired. Please sign in again.");
+      }
 
-      // 2. Direct-to-Cloud Upload via XMLHttpRequest to get exact byte progress
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !anonKey) {
+        throw new Error("Missing Supabase configuration keys.");
+      }
+
+      const uploadEndpoint = `${supabaseUrl}/storage/v1/object/raw_videos/${storagePath}`;
+
+      // 3. Upload directly via XHR to report real-time percentage
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        const uploadUrl = `${supabaseUrl}/storage/v1/object/raw_videos/${storagePath}`;
+        xhr.open("POST", uploadEndpoint, true);
 
-        xhr.open("POST", uploadUrl, true);
-        xhr.setRequestHeader("Authorization", `Bearer ${authToken}`);
-        xhr.setRequestHeader("apikey", supabaseAnonKey);
-        xhr.setRequestHeader("Content-Type", "video/mp4");
-        xhr.setRequestHeader("x-upsert", "true");
+        xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
+        xhr.setRequestHeader("apikey", anonKey);
+        xhr.setRequestHeader("Content-Type", selectedFile.type || "video/mp4");
+        xhr.setRequestHeader("x-upsert", "false");
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
-            const percentComplete = Math.round(
-              (event.loaded / event.total) * 100
-            );
+            const percentComplete = Math.round((event.loaded / event.total) * 100);
             setUploadProgress(percentComplete);
           }
         };
 
-        xhr.onload = async () => {
+        xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            setUploadProgress(100);
             resolve();
           } else {
-            // If XHR encounters status error, try standard Supabase JS client fallback
             try {
-              const { error: fallbackError } = await supabase.storage
-                .from("raw_videos")
-                .upload(storagePath, selectedFile, {
-                  contentType: "video/mp4",
-                  upsert: true,
-                });
-
-              if (fallbackError) {
-                reject(new Error(fallbackError.message));
-              } else {
-                setUploadProgress(100);
-                resolve();
-              }
-            } catch (fbErr: any) {
-              reject(
-                new Error(
-                  xhr.responseText || fbErr.message || "Cloud upload failed."
-                )
-              );
+              const res = JSON.parse(xhr.responseText);
+              reject(new Error(res.message || res.error || "Storage upload rejected."));
+            } catch {
+              reject(new Error(`Storage error status code: ${xhr.status}`));
             }
           }
         };
 
-        xhr.onerror = async () => {
-          // Attempt SDK fallback on network error
-          try {
-            const { error: fallbackError } = await supabase.storage
-              .from("raw_videos")
-              .upload(storagePath, selectedFile, {
-                contentType: "video/mp4",
-                upsert: true,
-              });
-
-            if (fallbackError) {
-              reject(new Error(fallbackError.message));
-            } else {
-              setUploadProgress(100);
-              resolve();
-            }
-          } catch (fbErr: any) {
-            reject(new Error("Direct upload connection error."));
-          }
+        xhr.onerror = () => {
+          reject(new Error("Network interruption during direct-to-cloud upload."));
         };
 
         xhr.send(selectedFile);
       });
 
-      // 3. Register the uploaded video via Server Action
-      toast.info(
-        "Upload Complete",
-        "Registering video in PostgreSQL pipeline..."
-      );
-
-      const result = await registerUploadedVideo(
-        selectedFile.name,
+      // 4. Register metadata in PostgreSQL via Server Action with explicit videoType
+      const videoTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
+      const registration = await registerUploadedVideo(
+        videoTitle,
         storagePath,
-        institutionId
+        institutionId,
+        videoType
       );
 
-      if (!result.success) {
-        throw new Error(result.error || "Failed to register video in database.");
+      if (!registration.success) {
+        throw new Error(registration.error || "Failed to register video record in database.");
       }
 
       toast.success(
-        "Pipeline Initialized",
-        `"${selectedFile.name}" stored in 'raw_videos' bucket. AI processing job queued!`
+        "Upload Complete",
+        `Video '${selectedFile.name}' registered. Queued for AI background analysis.`
       );
 
-      // Clean up state
+      // Reset state
       setSelectedFile(null);
-      setUploadProgress(0);
+      setUploadProgress(100);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
-      // Notify parent page to refresh video list
-      onUploadSuccess?.();
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (err: any) {
-      console.error("Video upload error:", err);
-      toast.error(
-        "Upload Failed",
-        err.message ||
-          "Could not upload video to storage bucket. Verify RLS permissions for 'raw_videos'."
-      );
+      console.error("Direct upload failed:", err);
+      toast.error("Upload Failed", err.message || "An unexpected error occurred during upload.");
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <div className="rounded-2xl border border-border/50 bg-slate-900/60 p-6 backdrop-blur shadow-xl space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-4">
-        <div>
-          <div className="flex items-center gap-2 text-blue-400 font-semibold text-xs tracking-wider uppercase">
-            <Film className="h-4 w-4" />
-            Direct-to-Cloud Ingestion
-          </div>
-          <h2 className="text-lg font-bold text-white tracking-tight">
-            Surveillance Stream Uploader
-          </h2>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+      {/* Header Info */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
+          <UploadCloud className="h-5 w-5 text-blue-600" />
+          <span>Direct Surveillance Upload</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <HardDrive className="h-3.5 w-3.5 text-blue-400" />
-          <span>Bucket: <code className="text-blue-300 bg-slate-800/80 px-1.5 py-0.5 rounded font-mono">raw_videos</code></span>
-          <span className="text-slate-600">&bull;</span>
-          <span>Bypasses Vercel 4.5MB limit</span>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span>Target Bucket: <code className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-mono font-semibold">raw_videos</code></span>
+          <span>&bull;</span>
+          <span>Bypasses Vercel payload limits</span>
+        </div>
+      </div>
+
+      {/* AI Pipeline Category Selector */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+          Target AI Analytics Pipeline
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <button
+            type="button"
+            onClick={() => setVideoType("vehicle")}
+            className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
+              videoType === "vehicle"
+                ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm ring-1 ring-blue-500/20"
+                : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/70"
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${videoType === "vehicle" ? "bg-blue-600 text-white" : "bg-white text-slate-500 border border-slate-200"}`}>
+              <Car className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold leading-none">Vehicle & Parking AI</p>
+              <p className="text-[11px] text-slate-500 mt-1 leading-tight">Gate barrier, ByteTrack</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setVideoType("classroom")}
+            className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
+              videoType === "classroom"
+                ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm ring-1 ring-blue-500/20"
+                : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/70"
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${videoType === "classroom" ? "bg-blue-600 text-white" : "bg-white text-slate-500 border border-slate-200"}`}>
+              <GraduationCap className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold leading-none">Classroom AI</p>
+              <p className="text-[11px] text-slate-500 mt-1 leading-tight">Students & active teacher</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setVideoType("auto")}
+            className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
+              videoType === "auto"
+                ? "border-blue-600 bg-blue-50/80 text-blue-900 shadow-sm ring-1 ring-blue-500/20"
+                : "border-slate-200 bg-slate-50/50 text-slate-700 hover:bg-slate-100/70"
+            }`}
+          >
+            <div className={`p-2 rounded-lg ${videoType === "auto" ? "bg-blue-600 text-white" : "bg-white text-slate-500 border border-slate-200"}`}>
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold leading-none">Auto-Detect Scene</p>
+              <p className="text-[11px] text-slate-500 mt-1 leading-tight">Smart CV frame probe</p>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -249,10 +279,10 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isUploading && fileInputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 cursor-pointer ${
+        className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 cursor-pointer ${
           isDragging
-            ? "border-blue-500 bg-blue-500/10 scale-[1.01]"
-            : "border-border/60 hover:border-blue-500/50 hover:bg-slate-800/40 bg-slate-950/40"
+            ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
+            : "border-slate-300 hover:border-blue-400 hover:bg-slate-50/80 bg-slate-50/40"
         } ${isUploading ? "pointer-events-none opacity-80" : ""}`}
       >
         <input
@@ -268,36 +298,36 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
           disabled={isUploading}
         />
 
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/10 text-blue-400 ring-1 ring-blue-500/20 mb-4 group-hover:scale-110 transition-transform">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100 mb-4 transition-transform">
           <UploadCloud className="h-7 w-7" />
         </div>
 
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-white">
+          <p className="text-sm font-semibold text-slate-900">
             {isDragging
               ? "Drop your MP4 file here"
-              : "Click to browse or drag & drop campus surveillance video"}
+              : "Click to select or drag & drop campus surveillance video"}
           </p>
-          <p className="text-xs text-muted-foreground">
-            Strictly MP4 format &bull; Maximum file size: <strong className="text-slate-300">100 MB</strong>
+          <p className="text-xs text-slate-500">
+            MP4 format only &bull; Max payload limit: <strong className="text-slate-800">100 MB</strong>
           </p>
         </div>
       </div>
 
       {/* Selected File Card & Progress */}
       {selectedFile && (
-        <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-4 space-y-3 animate-in fade-in">
+        <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 space-y-3 animate-in fade-in">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600/20 text-blue-400">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
                 <FileVideo className="h-5 w-5" />
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className="text-sm font-semibold text-slate-900 truncate">
                   {selectedFile.name}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB &bull; Ready for cloud stream
+                <p className="text-xs text-slate-500">
+                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB &bull; Ready for upload
                 </p>
               </div>
             </div>
@@ -309,7 +339,7 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
                   setSelectedFile(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors"
                 aria-label="Remove selected file"
               >
                 <X className="h-4 w-4" />
@@ -320,45 +350,33 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
           {/* Real-time Progress Bar */}
           {isUploading && (
             <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 flex items-center gap-1.5">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-400" />
-                  Streaming directly to Supabase S3...
+              <div className="flex items-center justify-between text-xs font-medium">
+                <span className="text-blue-700 flex items-center gap-1.5">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Uploading to Supabase Storage...
                 </span>
-                <span className="font-bold text-blue-400 font-mono">
+                <span className="font-bold text-blue-700 font-mono">
                   {uploadProgress}%
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-blue-200/60">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-150 ease-out"
+                  className="h-full bg-blue-600 transition-all duration-200 rounded-full"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Action Trigger */}
+          {/* Upload Button */}
           {!isUploading && (
-            <div className="flex justify-end gap-2 pt-1">
+            <div className="flex justify-end pt-2">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedFile(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-                className="border-border/60 text-slate-300 hover:bg-slate-800"
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm shadow-blue-500/20"
               >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={performDirectCloudUpload}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-md shadow-blue-500/20 gap-2"
-              >
-                <UploadCloud className="h-4 w-4" />
-                Start Direct Upload
+                Start Direct-to-Cloud Upload
               </Button>
             </div>
           )}
@@ -367,4 +385,3 @@ export function VideoUpload({ institutionId, onUploadSuccess }: VideoUploadProps
     </div>
   );
 }
-

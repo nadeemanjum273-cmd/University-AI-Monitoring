@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import threading
+import requests
 import traceback
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any
@@ -123,12 +124,14 @@ def get_storage_url(bucket_name: str, path: str) -> str:
         return f"{settings.SUPABASE_URL}/storage/v1/object/public/{bucket_name}/{path}"
 
 
-def determine_video_pipeline(video_data: Dict[str, Any], job_data: Dict[str, Any]) -> str:
+def determine_video_pipeline(
+    video_data: Dict[str, Any], job_data: Dict[str, Any], local_video_path: Optional[str] = None
+) -> str:
     """
     Determines whether to execute 'classroom' or 'vehicle' pipeline based on:
-    1. Explicit video_type column in database
-    2. Payload hint in job's results_json
-    3. Heuristic matching on title or storage path
+    1. Explicit video_type column in database or job results_json payload
+    2. Heuristic matching on title or storage path keywords
+    3. Automatic Computer Vision Scene Probe on sampled video frames (detecting vehicles vs classroom)
     """
     # 1. Explicit video_type column
     if video_data.get("video_type"):
@@ -140,7 +143,10 @@ def determine_video_pipeline(video_data: Dict[str, Any], job_data: Dict[str, Any
     # 2. Check job results_json metadata
     job_results = job_data.get("results_json") or {}
     if job_results.get("video_type"):
-        return str(job_results["video_type"]).lower()
+        v_type = str(job_results["video_type"]).lower()
+        if "vehicle" in v_type or "parking" in v_type or "gate" in v_type:
+            return "vehicle"
+        return "classroom"
 
     # 3. Smart heuristic on video title & storage path
     title = str(video_data.get("title", "")).lower()
@@ -150,6 +156,59 @@ def determine_video_pipeline(video_data: Dict[str, Any], job_data: Dict[str, Any
     vehicle_keywords = ["gate", "parking", "car", "vehicle", "traffic", "anpr", "barrier", "entry"]
     if any(keyword in combined for keyword in vehicle_keywords):
         return "vehicle"
+
+    classroom_keywords = ["class", "lecture", "student", "hall", "podium", "teaching", "exam"]
+    if any(keyword in combined for keyword in classroom_keywords):
+        return "classroom"
+
+    # 4. Automatic Computer Vision Scene Probe on local video
+    if local_video_path and os.path.exists(local_video_path):
+        try:
+            import cv2
+            from ultralytics import YOLO
+
+            probe_model = YOLO("yolov8n.pt")
+            cap = cv2.VideoCapture(local_video_path)
+            total_video_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 100)
+
+            sample_positions = [
+                min(total_video_frames - 1, int(total_video_frames * 0.1)),
+                min(total_video_frames - 1, int(total_video_frames * 0.3)),
+                min(total_video_frames - 1, int(total_video_frames * 0.5)),
+                min(total_video_frames - 1, int(total_video_frames * 0.7)),
+            ]
+
+            vehicle_detections = 0
+            probed_count = 0
+
+            for frame_idx in sample_positions:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+                ret, frame = cap.read()
+                if not ret or frame is None:
+                    continue
+                probed_count += 1
+                # Check for vehicle classes: 2: car, 3: motorcycle, 5: bus, 7: truck
+                results = probe_model(frame, classes=[2, 3, 5, 7], conf=0.25, verbose=False)[0]
+                if len(results.boxes) > 0:
+                    vehicle_detections += len(results.boxes)
+
+            cap.release()
+
+            if vehicle_detections > 0:
+                print(
+                    f"🚗 [Scene Probe] Detected {vehicle_detections} vehicle instances across {probed_count} sample frames."
+                    f" Automatically routing to VEHICLE / PARKING pipeline!"
+                )
+                return "vehicle"
+            else:
+                print(
+                    f"🎓 [Scene Probe] No vehicles detected across {probed_count} sample frames."
+                    f" Automatically routing to CLASSROOM pipeline."
+                )
+                return "classroom"
+
+        except Exception as probe_err:
+            print(f"⚠️ [Scene Probe Warning]: {probe_err}, falling back to default.", file=sys.stderr)
 
     return "classroom"
 
@@ -192,17 +251,25 @@ def process_single_job(job: Dict[str, Any]) -> None:
         institution_id = video_data.get("institution_id", "general")
         print(f"📹 [DB] Located video '{video_data.get('title')}' at storage path: {storage_path}")
 
-        # b) Download raw MP4 from 'raw_videos' bucket
+        # b) Download raw MP4 from 'raw_videos' bucket using robust HTTP/1.1 stream
         print(f"📥 [Storage] Downloading '{storage_path}' from bucket '{settings.RAW_BUCKET}'...")
-        file_bytes = supabase.storage.from_(settings.RAW_BUCKET).download(storage_path)
+        download_url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/{settings.RAW_BUCKET}/{storage_path}"
+        headers = {
+            "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+        }
+        with requests.get(download_url, headers=headers, stream=True, timeout=60) as resp:
+            resp.raise_for_status()
+            with open(local_input_path, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=65536):
+                    if chunk:
+                        f.write(chunk)
 
-        with open(local_input_path, "wb") as f:
-            f.write(file_bytes)
         file_size_mb = os.path.getsize(local_input_path) / (1024 * 1024)
         print(f"💾 [Disk] Saved raw video locally: {local_input_path} ({file_size_mb:.2f} MB)")
 
-        # c) Route to appropriate AI Pipeline
-        pipeline_type = determine_video_pipeline(video_data, job)
+        # c) Route to appropriate AI Pipeline (uses explicit selection or Smart Frame Probe)
+        pipeline_type = determine_video_pipeline(video_data, job, local_video_path=local_input_path)
         print(f"🧠 [AI Router] Selected pipeline: '{pipeline_type.upper()}' for Video: '{video_data.get('title')}'")
 
         if pipeline_type == "vehicle":

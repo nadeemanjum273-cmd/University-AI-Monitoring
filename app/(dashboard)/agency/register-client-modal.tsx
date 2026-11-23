@@ -59,79 +59,79 @@ export function RegisterClientModal() {
           setErrorMessage(null);
           setSuccess(false);
         }}
-        className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/25 gap-2"
+        className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20 font-semibold gap-2 rounded-xl"
       >
         <PlusCircle className="h-4 w-4" />
         Register New Client
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <Card className="relative w-full max-w-lg border-border/50 bg-slate-900 shadow-2xl overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="relative w-full max-w-lg border-slate-200 bg-white shadow-2xl rounded-2xl overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
 
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
               aria-label="Close modal"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <CardHeader className="space-y-1">
-              <div className="flex items-center gap-2 text-blue-400">
+            <CardHeader className="space-y-1 pb-4">
+              <div className="flex items-center gap-2 text-blue-600">
                 <Building2 className="h-5 w-5" />
                 <span className="text-xs font-semibold uppercase tracking-wider">
-                  Multi-Tenant Provisioning
+                  New Client Onboarding
                 </span>
               </div>
-              <CardTitle className="text-xl font-bold text-white">
+              <CardTitle className="text-xl font-bold text-slate-900">
                 Register New Institution
               </CardTitle>
-              <CardDescription className="text-slate-400 text-sm">
-                Deploy an isolated university surveillance tenant with an allocated administrator.
+              <CardDescription className="text-slate-500 text-sm">
+                Create a dedicated university surveillance tenant and assign an initial administrator.
               </CardDescription>
             </CardHeader>
 
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4 pt-2">
                 {errorMessage && (
-                  <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+                  <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>{errorMessage}</span>
                   </div>
                 )}
 
                 {success && (
-                  <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-400">
+                  <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
                     <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span>Institution and Admin provisioned successfully!</span>
+                    <span>Institution and Admin created successfully!</span>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-xs font-semibold uppercase text-slate-300">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name" className="text-xs font-semibold uppercase text-slate-600">
                     Institution / University Name
                   </Label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <Input
                       id="name"
                       name="name"
-                      placeholder="e.g. Stanford Technology Institute"
+                      placeholder="e.g. Stanford University"
                       required
                       disabled={isPending}
-                      className="pl-9 bg-background/50 border-input"
+                      className="pl-9 bg-white border-slate-200 text-slate-900 rounded-xl"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="adminEmail" className="text-xs font-semibold uppercase text-slate-300">
+                <div className="space-y-1.5">
+                  <Label htmlFor="adminEmail" className="text-xs font-semibold uppercase text-slate-600">
                     Campus Admin Email
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <Input
                       id="adminEmail"
                       name="adminEmail"
@@ -139,17 +139,17 @@ export function RegisterClientModal() {
                       placeholder="admin@institution.edu"
                       required
                       disabled={isPending}
-                      className="pl-9 bg-background/50 border-input"
+                      className="pl-9 bg-white border-slate-200 text-slate-900 rounded-xl"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="adminPassword" className="text-xs font-semibold uppercase text-slate-300">
+                <div className="space-y-1.5">
+                  <Label htmlFor="adminPassword" className="text-xs font-semibold uppercase text-slate-600">
                     Initial Admin Password
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <Input
                       id="adminPassword"
                       name="adminPassword"
@@ -158,33 +158,33 @@ export function RegisterClientModal() {
                       required
                       minLength={6}
                       disabled={isPending}
-                      className="pl-9 bg-background/50 border-input"
+                      className="pl-9 bg-white border-slate-200 text-slate-900 rounded-xl"
                     />
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Must be at least 6 characters. The administrator can change this upon initial login.
+                  <p className="text-[11px] text-slate-500">
+                    Minimum 6 characters. The administrator can change this upon sign-in.
                   </p>
                 </div>
               </CardContent>
 
-              <CardFooter className="flex justify-end gap-3 pt-4 border-t border-border/40">
+              <CardFooter className="flex justify-end gap-2 border-t border-slate-100 bg-slate-50/50 p-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsOpen(false)}
                   disabled={isPending}
-                  className="border-border/60 text-slate-300 hover:bg-slate-800"
+                  className="border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={isPending}
-                  className="bg-blue-600 hover:bg-blue-500 text-white min-w-[140px]"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-5"
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       Provisioning...
                     </>
                   ) : (
@@ -199,4 +199,3 @@ export function RegisterClientModal() {
     </>
   );
 }
-

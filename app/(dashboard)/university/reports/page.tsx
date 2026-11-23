@@ -40,7 +40,7 @@ export default async function ReportsPage() {
 
   if (!institutionId) {
     return (
-      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-amber-300">
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
         <h2 className="text-lg font-bold">No Institution Association</h2>
         <p className="text-sm mt-1">
           Your account is not currently linked to an active university tenant.
@@ -143,43 +143,43 @@ export default async function ReportsPage() {
     .reduce((sum, r) => sum + (Number(r.results_json?.total_vehicles_entered) || 0), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Breadcrumb & Navigation */}
       <div className="flex items-center justify-between">
-        <Button variant="outline" size="sm" asChild className="border-border/60">
+        <Button variant="outline" size="sm" asChild className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 rounded-xl shadow-sm">
           <Link href="/university" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Overview
           </Link>
         </Button>
 
-        <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-950/20 px-3 py-1">
+        <Badge variant="outline" className="border-slate-200 bg-white text-slate-700 font-semibold px-3 py-1 shadow-sm">
           {institutionName}
         </Badge>
       </div>
 
       {/* Hero Banner */}
-      <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/30 p-6 backdrop-blur flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-600/10 text-cyan-400 border border-cyan-500/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
             <BarChart3 className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white tracking-tight">AI Surveillance Reports & Analytics</h1>
-              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">AI Surveillance Reports & Analytics</h1>
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none font-semibold text-xs">
                 Live Forensics
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="text-sm text-slate-500 mt-0.5">
               Review completed YOLOv8 classroom attendances, ByteTrack vehicle logs, and download compliance spreadsheets.
             </p>
           </div>
         </div>
 
-        <Button variant="outline" asChild className="border-border/60 text-slate-300 hover:text-white self-start sm:self-auto">
+        <Button variant="outline" asChild className="border-slate-200 text-slate-700 hover:bg-slate-50 self-start sm:self-auto rounded-xl shadow-sm">
           <Link href="/university/videos" className="gap-2">
-            <Video className="h-4 w-4 text-cyan-400" />
+            <Video className="h-4 w-4 text-blue-600" />
             Upload New Video
           </Link>
         </Button>
@@ -187,55 +187,55 @@ export default async function ReportsPage() {
 
       {/* Aggregate Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
               <span>Completed Audits</span>
-              <FileText className="h-4 w-4 text-cyan-400" />
+              <FileText className="h-4 w-4 text-blue-600" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalReports}</div>
-            <p className="text-xs text-muted-foreground mt-1">Ready for audit & compliance</p>
+            <div className="text-2xl font-bold text-slate-900">{totalReports}</div>
+            <p className="text-xs text-slate-500 mt-1">Ready for audit & compliance</p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
               <span>Classroom Sessions</span>
-              <GraduationCap className="h-4 w-4 text-emerald-400" />
+              <GraduationCap className="h-4 w-4 text-emerald-600" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-400">{classroomCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">Student & podium zone analyses</p>
+            <div className="text-2xl font-bold text-slate-900">{classroomCount}</div>
+            <p className="text-xs text-emerald-600 mt-1 font-medium">Student & podium zone analyses</p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
               <span>Vehicle Entries</span>
-              <Car className="h-4 w-4 text-sky-400" />
+              <Car className="h-4 w-4 text-sky-600" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-400">{totalVehiclesSum}</div>
-            <p className="text-xs text-muted-foreground mt-1">Across {vehicleCount} gate camera audits</p>
+            <div className="text-2xl font-bold text-slate-900">{totalVehiclesSum}</div>
+            <p className="text-xs text-sky-600 mt-1 font-medium">Across {vehicleCount} gate camera audits</p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
               <span>Data Protection</span>
-              <ShieldCheck className="h-4 w-4 text-indigo-400" />
+              <ShieldCheck className="h-4 w-4 text-indigo-600" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">PostgreSQL RLS</div>
-            <p className="text-xs text-indigo-300 mt-1">Signed URL authenticated access</p>
+            <div className="text-2xl font-bold text-slate-900">PostgreSQL RLS</div>
+            <p className="text-xs text-slate-500 mt-1">Signed URL authenticated access</p>
           </CardContent>
         </Card>
       </div>

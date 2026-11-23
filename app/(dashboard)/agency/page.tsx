@@ -1,22 +1,19 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Institution } from "@/types/database";
 import { InstitutionsTable } from "./institutions-table";
 import { RegisterClientModal } from "./register-client-modal";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   Building2,
   ShieldCheck,
-  Server,
+  Video,
   Activity,
-  Layers,
 } from "lucide-react";
 
 export default async function AgencyDashboardPage() {
@@ -42,19 +39,15 @@ export default async function AgencyDashboardPage() {
   const institutions = (rawInstitutions as any[]) || [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Banner & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-purple-400 font-semibold text-xs tracking-wider uppercase mb-1">
-            <Layers className="h-4 w-4" />
-            Agency SaaS Multi-Tenant Manager
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Institutional Tenants & Clients
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Client Universities
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Manage subscribed universities, provision tenant credentials, and monitor edge AI nodes.
+          <p className="text-sm text-slate-500 mt-1">
+            Manage subscribed institutions, provision administrative accounts, and monitor AI processing nodes.
           </p>
         </div>
 
@@ -65,66 +58,74 @@ export default async function AgencyDashboardPage() {
 
       {/* Overview Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/40 bg-card/60">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">
-              Registered Clients
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Enrolled Clients
             </CardTitle>
-            <Building2 className="h-4 w-4 text-purple-400" />
+            <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Building2 className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-slate-900">
               {institutions.length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Active university tenants
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">
-              Isolated Schemas
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Data Isolation
             </CardTitle>
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">100%</div>
-            <p className="text-xs text-emerald-400 mt-1">
+            <div className="text-2xl font-bold text-emerald-600">100%</div>
+            <p className="text-xs text-slate-500 mt-1">
               Protected by PostgreSQL RLS
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">
-              Global Surveillance Nodes
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Active Cameras
             </CardTitle>
-            <Server className="h-4 w-4 text-blue-400" />
+            <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Video className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
-              {institutions.length > 0 ? institutions.length * 12 : 0}
+            <div className="text-2xl font-bold text-slate-900">
+              {institutions.length > 0 ? institutions.length * 8 : 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Edge camera clusters
+            <p className="text-xs text-slate-500 mt-1">
+              Surveillance nodes online
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/40 bg-card/60">
+        <Card className="border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">
-              Agency Platform Health
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              System Uptime
             </CardTitle>
-            <Activity className="h-4 w-4 text-cyan-400" />
+            <div className="h-8 w-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center">
+              <Activity className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">99.98%</div>
-            <p className="text-xs text-cyan-400 mt-1">
-              Cloud SSR Realtime Stream
+            <div className="text-2xl font-bold text-slate-900">99.98%</div>
+            <p className="text-xs text-emerald-600 mt-1">
+              All services operational
             </p>
           </CardContent>
         </Card>
@@ -133,11 +134,11 @@ export default async function AgencyDashboardPage() {
       {/* Institutions Data Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">
+          <h2 className="text-lg font-bold text-slate-900">
             Client Directory
           </h2>
           {error && (
-            <span className="text-xs text-amber-400">
+            <span className="text-xs text-amber-600">
               Note: Database schema initializing ({error.message})
             </span>
           )}
@@ -147,4 +148,3 @@ export default async function AgencyDashboardPage() {
     </div>
   );
 }
-

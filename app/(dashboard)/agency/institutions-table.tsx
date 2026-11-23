@@ -17,9 +17,9 @@ import {
   Building2,
   Search,
   ExternalLink,
-  Calendar,
   Users,
   ShieldCheck,
+  Calendar,
 } from "lucide-react";
 
 export type InstitutionWithProfiles = Institution & {
@@ -47,34 +47,34 @@ export function InstitutionsTable({ institutions }: InstitutionsTableProps) {
       {/* Search & Filter Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search institution by name or ID..."
+            placeholder="Search by institution name or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 bg-card/60 border-input"
+            className="pl-9 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 rounded-xl shadow-sm"
           />
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground self-end sm:self-center">
+        <div className="flex items-center gap-2 text-xs text-slate-500 self-end sm:self-center">
           <Users className="h-4 w-4" />
           <span>
-            Showing <strong className="text-white">{filtered.length}</strong> of{" "}
-            {institutions.length} tenants
+            Showing <strong className="text-slate-900">{filtered.length}</strong> of{" "}
+            {institutions.length} institutions
           </span>
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="rounded-xl border border-border/40 bg-card/40 backdrop-blur overflow-hidden shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-slate-900/80">
-            <TableRow>
-              <TableHead className="w-[300px]">Institution</TableHead>
-              <TableHead>Tenant ID</TableHead>
-              <TableHead>Designated Admin</TableHead>
-              <TableHead>Isolation Status</TableHead>
-              <TableHead>Registered</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+          <TableHeader className="bg-slate-50/80 border-b border-slate-200">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[300px] text-xs font-semibold uppercase text-slate-500">Institution</TableHead>
+              <TableHead className="text-xs font-semibold uppercase text-slate-500">Tenant ID</TableHead>
+              <TableHead className="text-xs font-semibold uppercase text-slate-500">Designated Admin</TableHead>
+              <TableHead className="text-xs font-semibold uppercase text-slate-500">Isolation Status</TableHead>
+              <TableHead className="text-xs font-semibold uppercase text-slate-500">Enrolled Date</TableHead>
+              <TableHead className="text-right text-xs font-semibold uppercase text-slate-500">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -82,17 +82,19 @@ export function InstitutionsTable({ institutions }: InstitutionsTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="h-48 text-center text-muted-foreground"
+                  className="h-48 text-center text-slate-400"
                 >
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <Building2 className="h-8 w-8 text-slate-500" />
-                    <p className="font-medium text-slate-300">
+                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <Building2 className="h-6 w-6" />
+                    </div>
+                    <p className="font-semibold text-slate-700">
                       No institutions found
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-slate-500">
                       {searchTerm
                         ? "No universities match your search query."
-                        : "Use the 'Register New Client' button to onboard your first campus tenant."}
+                        : "Click 'Register New Client' to onboard your first campus tenant."}
                     </p>
                   </div>
                 </TableCell>
@@ -100,68 +102,75 @@ export function InstitutionsTable({ institutions }: InstitutionsTableProps) {
             ) : (
               filtered.map((inst) => {
                 const adminProfile = inst.profiles?.[0];
-                const adminEmail = adminProfile?.email || "Admin Provisioned";
-
                 return (
                   <TableRow
                     key={inst.id}
-                    className="hover:bg-slate-800/40 transition-colors"
+                    className="border-b border-slate-100 hover:bg-slate-50/70 transition-colors"
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-slate-900">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/20">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 font-bold border border-blue-100">
                           <Building2 className="h-4 w-4" />
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-white">
+                        <div>
+                          <div className="font-semibold text-slate-900">
                             {inst.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
+                          </div>
+                          <div className="text-xs text-slate-500">
                             Surveillance Tier 1
-                          </span>
+                          </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <span className="font-mono text-xs text-slate-400 bg-slate-900/80 px-2 py-1 rounded border border-border/40">
+
+                    <TableCell className="font-mono text-xs text-slate-600">
+                      <span className="bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
                         {inst.id.slice(0, 8)}...
                       </span>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-slate-300">
-                        {adminEmail}
-                      </span>
+
+                    <TableCell className="text-sm text-slate-700">
+                      {adminProfile ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">
+                            {adminProfile.email}
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            {adminProfile.full_name || "Admin"}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">
+                          No admin assigned
+                        </span>
+                      )}
                     </TableCell>
+
                     <TableCell>
-                      <Badge
-                        variant="success"
-                        className="gap-1.5 capitalize font-medium"
-                      >
+                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium flex items-center gap-1 w-fit shadow-none">
                         <ShieldCheck className="h-3 w-3" />
                         RLS Isolated
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
+
+                    <TableCell className="text-xs text-slate-500">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(inst.created_at).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <span>{new Date(inst.created_at).toLocaleDateString()}</span>
                       </div>
                     </TableCell>
+
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 text-blue-400 hover:text-blue-300 hover:bg-blue-600/10 gap-1.5"
-                        onClick={() =>
-                          alert(`Managing institution: ${inst.name} (${inst.id})`)
-                        }
+                        asChild
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold gap-1"
                       >
-                        <span>Manage</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <a href="/university" target="_blank" rel="noopener noreferrer">
+                          <span>Open</span>
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
                       </Button>
                     </TableCell>
                   </TableRow>

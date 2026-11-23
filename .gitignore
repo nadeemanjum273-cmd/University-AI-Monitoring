@@ -42,3 +42,6 @@ temp/
 .DS_Store
 Thumbs.db
 
+
+# Temporary scratch
+/scratch/

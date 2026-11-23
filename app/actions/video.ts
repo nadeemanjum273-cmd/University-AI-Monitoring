@@ -23,7 +23,8 @@ export interface RegisterVideoResult {
 export async function registerUploadedVideo(
   fileName: string,
   storagePath: string,
-  institutionId: string
+  institutionId: string,
+  videoType: "classroom" | "vehicle" | "auto" = "auto"
 ): Promise<RegisterVideoResult> {
   try {
     const { user, profile } = await getCurrentProfile();
@@ -68,13 +69,16 @@ export async function registerUploadedVideo(
 
     const videoRecord = videoData as VideoRecord;
 
-    // 2. Automatically queue record in 'processing_jobs' table for Render Python worker
+    // 2. Automatically queue record in 'processing_jobs' table for Render Python worker with video_type hint
     const { data: jobData, error: jobError } = await supabase
       .from("processing_jobs")
       .insert([
         {
           video_id: videoRecord.id,
           status: "queued",
+          results_json: {
+            video_type: videoType,
+          },
         },
       ])
       .select()

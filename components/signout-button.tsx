@@ -14,17 +14,14 @@ export function SignOutButton() {
       size="sm"
       disabled={isPending}
       onClick={() => startTransition(() => logout())}
-      className="border-border/60 hover:bg-destructive/10 hover:text-red-400 hover:border-red-500/30 transition-colors"
+      className="border-slate-200 bg-white text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 shadow-sm transition-colors"
     >
       {isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
       ) : (
-        <>
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </>
+        <LogOut className="h-4 w-4 mr-1.5 text-slate-400 group-hover:text-red-600" />
       )}
+      Sign Out
     </Button>
   );
 }
-
