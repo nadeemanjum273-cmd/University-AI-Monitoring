@@ -83,28 +83,28 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
         <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Chat Panel */}
-          <div className="relative z-50 flex h-full w-full max-w-md flex-col bg-slate-900 border-l border-border/50 shadow-2xl animate-in slide-in-from-right duration-300">
+          <div className="relative z-50 flex h-full w-full max-w-md flex-col bg-white border-l border-slate-200 shadow-2xl animate-in slide-in-from-right duration-300">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border/50 bg-slate-950/80 p-4">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/50 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-blue-500/20">
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">
+                    <h3 className="text-sm font-bold text-slate-900">
                       AI Data Assistant
                     </h3>
-                    <Badge variant="info" className="text-[10px] py-0 px-1.5">
+                    <Badge variant="info" className="text-[10px] py-0 px-2 rounded-full bg-blue-50 text-blue-700 border-blue-200">
                       RAG Ready
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-500 font-medium">
                     Supabase pgvector Knowledge Base
                   </p>
                 </div>
@@ -113,7 +113,7 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
                 aria-label="Close assistant"
               >
                 <X className="h-5 w-5" />
@@ -121,13 +121,13 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
             </div>
 
             {/* Messages Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3 text-xs text-slate-300 space-y-1">
-                <div className="flex items-center gap-1.5 font-semibold text-blue-400">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+              <div className="rounded-xl border border-blue-200/80 bg-blue-50/60 p-3 text-xs text-slate-700 space-y-1">
+                <div className="flex items-center gap-1.5 font-semibold text-blue-700">
                   <Database className="h-3.5 w-3.5" />
                   <span>Tenant Isolation Safeguard</span>
                 </div>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-600">
                   Queries are automatically scoped to your institution's partitioned surveillance telemetry via PostgreSQL RLS.
                 </p>
               </div>
@@ -140,15 +140,15 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
                   }`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${
+                    className={`max-w-[85%] rounded-2xl p-3.5 text-sm leading-relaxed ${
                       msg.sender === "user"
-                        ? "bg-blue-600 text-white rounded-tr-none shadow-md"
-                        : "bg-slate-800/90 text-slate-200 rounded-tl-none border border-border/40"
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-none shadow-md shadow-blue-500/20 font-medium"
+                        : "bg-white text-slate-800 rounded-tl-none border border-slate-200/90 shadow-xs"
                     }`}
                   >
                     {msg.text}
                   </div>
-                  <span className="text-[10px] text-muted-foreground mt-1 px-1">
+                  <span className="text-[10px] text-slate-400 mt-1 px-1">
                     {msg.time}
                   </span>
                 </div>
@@ -156,7 +156,7 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
 
               {/* Sample Prompts */}
               <div className="pt-2">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
                   Suggested Queries
                 </p>
                 <div className="space-y-1.5">
@@ -165,7 +165,7 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
                       key={idx}
                       type="button"
                       onClick={() => setInputVal(prompt)}
-                      className="w-full text-left text-xs bg-slate-800/50 hover:bg-slate-800 text-slate-300 p-2 rounded-lg border border-border/30 transition-colors truncate"
+                      className="w-full text-left text-xs bg-white hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 text-slate-700 p-2.5 rounded-xl border border-slate-200 shadow-xs transition-colors truncate font-medium cursor-pointer"
                     >
                       &ldquo;{prompt}&rdquo;
                     </button>
@@ -177,18 +177,18 @@ export function AIChatAssistant({ institutionName }: AIChatAssistantProps) {
             {/* Input Footer */}
             <form
               onSubmit={handleSend}
-              className="border-t border-border/50 bg-slate-950/80 p-3 flex gap-2"
+              className="border-t border-slate-100 bg-white p-3 flex gap-2"
             >
               <Input
                 placeholder="Ask about campus surveillance..."
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
-                className="bg-card/70 border-input text-sm"
+                className="bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white"
               />
               <Button
                 type="submit"
                 size="icon"
-                className="bg-blue-600 hover:bg-blue-500 text-white shrink-0"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shrink-0 shadow-sm shadow-blue-500/20"
               >
                 <Send className="h-4 w-4" />
               </Button>

@@ -137,40 +137,41 @@ export function AskCampusAiWidget() {
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group flex items-center gap-2.5 rounded-full bg-slate-900 px-4 py-3 text-white shadow-xl shadow-blue-900/30 ring-1 ring-white/20 transition-all duration-300 hover:scale-105 hover:bg-slate-800 hover:shadow-blue-500/25 active:scale-95"
+            className="group flex items-center gap-2.5 rounded-full bg-white/95 px-4 py-3 text-slate-800 shadow-xl shadow-blue-500/10 ring-1 ring-slate-200/90 transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:shadow-blue-500/20 active:scale-95 backdrop-blur-md"
             aria-label="Open Ask Campus AI Chat"
           >
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
             </span>
-            <Sparkles className="h-4 w-4 text-amber-400 transition-transform group-hover:rotate-12" />
-            <span className="font-semibold text-xs sm:text-sm tracking-wide">
+            <Sparkles className="h-4 w-4 text-amber-500 transition-transform group-hover:rotate-12" />
+            <span className="font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
               Ask Campus AI
             </span>
           </button>
         )}
       </div>
 
-      {/* Floating Dark Glassmorphism Chat Drawer */}
+      {/* Floating Light Sleek Glassmorphism Chat Drawer */}
       {isOpen && (
-        <div className="fixed bottom-6 right-4 sm:right-6 z-50 flex h-[620px] w-[95vw] sm:w-[440px] flex-col overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-950/95 text-slate-100 shadow-2xl shadow-black/60 backdrop-blur-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-6 print:hidden">
+        <div className="fixed bottom-6 right-4 sm:right-6 z-50 flex h-[620px] w-[95vw] sm:w-[440px] flex-col overflow-hidden rounded-3xl border border-slate-200/90 bg-white/95 text-slate-800 shadow-2xl shadow-blue-950/15 backdrop-blur-2xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-6 print:hidden">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/90 px-4 py-3.5 backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-blue-50/50 px-4 py-3.5 backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-blue-500/25">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-blue-500/20">
                 <Bot className="h-5 w-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white tracking-tight">
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                     Ask Campus AI
                   </h3>
-                  <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-bold px-1.5 py-0.5">
+                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     RAG Connected
                   </Badge>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-slate-500 font-medium">
                   Natural language telemetry search
                 </p>
               </div>
@@ -180,14 +181,14 @@ export function AskCampusAiWidget() {
               <button
                 onClick={handleReset}
                 title="Restart Chat"
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
                 title="Close Assistant"
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -195,7 +196,7 @@ export function AskCampusAiWidget() {
           </div>
 
           {/* Messages Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs scrollbar-thin scrollbar-thumb-slate-800">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs bg-slate-50/60 scrollbar-thin scrollbar-thumb-slate-200">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -206,8 +207,8 @@ export function AskCampusAiWidget() {
                 <div
                   className={`max-w-[88%] rounded-2xl p-3.5 leading-relaxed shadow-sm ${
                     msg.sender === "user"
-                      ? "bg-blue-600 text-white rounded-tr-xs"
-                      : "bg-slate-900/90 border border-slate-800 text-slate-200 rounded-tl-xs backdrop-blur-md"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-xs shadow-blue-500/20 font-medium"
+                      : "bg-white border border-slate-200/90 text-slate-800 rounded-tl-xs shadow-xs"
                   }`}
                 >
                   <div className="whitespace-pre-line font-normal">
@@ -222,11 +223,11 @@ export function AskCampusAiWidget() {
                         return (
                           <div
                             key={card.videoId}
-                            className="overflow-hidden rounded-xl border border-slate-700/80 bg-slate-950/80 shadow-md transition-all hover:border-slate-600"
+                            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200"
                           >
                             {/* Snapshot Thumbnail */}
                             {card.snapshotUrl ? (
-                              <div className="relative h-32 w-full bg-slate-900">
+                              <div className="relative h-32 w-full bg-slate-100">
                                 <img
                                   src={card.snapshotUrl}
                                   alt={card.title}
@@ -234,10 +235,10 @@ export function AskCampusAiWidget() {
                                 />
                                 <div className="absolute top-2 left-2 flex gap-1.5">
                                   <Badge
-                                    className={`text-[9px] font-semibold py-0.5 px-2 border ${
+                                    className={`text-[9px] font-semibold py-0.5 px-2 border shadow-xs ${
                                       isClass
-                                        ? "bg-emerald-950/90 text-emerald-300 border-emerald-700"
-                                        : "bg-sky-950/90 text-sky-300 border-sky-700"
+                                        ? "bg-emerald-600/90 text-white border-emerald-500/30"
+                                        : "bg-blue-600/90 text-white border-blue-500/30"
                                     }`}
                                   >
                                     {isClass ? "Classroom AI" : "Vehicle Gate"}
@@ -245,34 +246,34 @@ export function AskCampusAiWidget() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="flex h-20 items-center justify-center bg-slate-900 text-slate-500">
+                              <div className="flex h-20 items-center justify-center bg-slate-50 text-slate-400">
                                 <Layers className="h-6 w-6 mr-1" />
                                 <span className="text-[10px]">No Snapshot Image</span>
                               </div>
                             )}
 
                             {/* Card Details */}
-                            <div className="p-3 space-y-2">
-                              <p className="font-bold text-xs text-white truncate">
+                            <div className="p-3 space-y-2.5">
+                              <p className="font-bold text-xs text-slate-900 truncate">
                                 {card.title}
                               </p>
 
                               {/* Metrics Row */}
-                              <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                              <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                                 <div>
-                                  <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
+                                  <span className="text-[9px] uppercase tracking-wider text-slate-500 block font-semibold">
                                     {card.primaryMetric.label}
                                   </span>
-                                  <span className="font-bold text-emerald-400">
+                                  <span className="font-bold text-blue-600 text-xs">
                                     {card.primaryMetric.value}
                                   </span>
                                 </div>
                                 {card.secondaryMetric && (
                                   <div>
-                                    <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
+                                    <span className="text-[9px] uppercase tracking-wider text-slate-500 block font-semibold">
                                       {card.secondaryMetric.label}
                                     </span>
-                                    <span className="font-bold text-amber-300 truncate block">
+                                    <span className="font-bold text-slate-700 text-xs truncate block">
                                       {card.secondaryMetric.value}
                                     </span>
                                   </div>
@@ -283,7 +284,7 @@ export function AskCampusAiWidget() {
                               <Link
                                 href={card.reportUrl}
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-blue-600 hover:bg-blue-500 py-1.5 text-[11px] font-semibold text-white transition-colors mt-2"
+                                className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-2 text-[11px] font-semibold text-white shadow-sm shadow-blue-500/20 transition-all mt-1"
                               >
                                 <span>View Annotated Video & Report</span>
                                 <ArrowRight className="h-3.5 w-3.5" />
@@ -296,22 +297,22 @@ export function AskCampusAiWidget() {
                   )}
                 </div>
 
-                <span className="text-[10px] text-slate-500 mt-1 px-1">
+                <span className="text-[10px] text-slate-400 mt-1 px-1">
                   {msg.timestamp}
                 </span>
 
                 {/* Suggestion Chips */}
                 {msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2 max-w-[90%]">
+                  <div className="flex flex-wrap gap-1.5 mt-2 max-w-[95%]">
                     {msg.suggestedQuestions.map((qText) => (
                       <button
                         key={qText}
                         onClick={() => handleSend(qText)}
                         disabled={isLoading}
-                        className="rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 hover:border-slate-700 px-2.5 py-1 text-[11px] text-slate-300 hover:text-white transition-all text-left flex items-center gap-1.5"
+                        className="rounded-xl border border-slate-200/90 bg-white hover:bg-blue-50/80 hover:border-blue-300 hover:text-blue-700 px-3 py-1.5 text-[11px] text-slate-600 transition-all text-left flex items-center gap-1.5 shadow-xs group cursor-pointer"
                       >
-                        <Sparkles className="h-3 w-3 text-amber-400/80" />
-                        <span>{qText}</span>
+                        <Sparkles className="h-3 w-3 text-amber-500 group-hover:text-blue-600 transition-colors" />
+                        <span className="font-medium">{qText}</span>
                       </button>
                     ))}
                   </div>
@@ -320,9 +321,9 @@ export function AskCampusAiWidget() {
             ))}
 
             {isLoading && (
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-900 border border-slate-800 p-3 max-w-[70%]">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
-                <span className="text-xs text-slate-400">
+              <div className="flex items-center gap-2 rounded-2xl bg-white border border-slate-200/80 p-3 max-w-[75%] shadow-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <span className="text-xs text-slate-500 font-medium">
                   Analyzing YOLOv8 & ByteTrack telemetry...
                 </span>
               </div>
@@ -331,7 +332,7 @@ export function AskCampusAiWidget() {
           </div>
 
           {/* Input Footer */}
-          <div className="border-t border-slate-800 bg-slate-900/80 p-3 backdrop-blur-md">
+          <div className="border-t border-slate-100 bg-white p-3 backdrop-blur-md">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -344,14 +345,14 @@ export function AskCampusAiWidget() {
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
                 placeholder="Ask about attendance, teaching time, vehicles..."
-                className="flex-1 rounded-xl border border-slate-700/80 bg-slate-950 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/15 transition-all"
                 disabled={isLoading}
               />
               <Button
                 type="submit"
                 size="sm"
                 disabled={!inputQuery.trim() || isLoading}
-                className="h-8 w-8 rounded-xl bg-blue-600 hover:bg-blue-500 p-0 text-white disabled:opacity-40"
+                className="h-9 w-9 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 p-0 text-white shadow-sm shadow-blue-500/20 disabled:opacity-40 transition-all cursor-pointer"
               >
                 <Send className="h-4 w-4" />
               </Button>
